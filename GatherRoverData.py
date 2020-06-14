@@ -9,6 +9,7 @@ import time
 from flask import Flask
 from supporting_functions import update_rover
 from birdEyeView import perspectiveTransform
+from GenerateTerrain import navigableTerrain
 
 
 sio = socketio.Server()
@@ -66,8 +67,6 @@ class RoverState():
 # Initialize our rover 
 Rover = RoverState()
 
-
-
 frame_counter = 0
 # Initalize second counter
 second_counter = time.time()
@@ -79,7 +78,10 @@ def telemetry(sid, data):
         global Rover
         # Initialize / update Rover with current telemetry
         Rover, image = update_rover(Rover, data)
-        image = perspectiveTransform(Rover)
+        Rover = perspectiveTransform(Rover)
+       
+
+
         commands = (Rover.throttle, Rover.brake, Rover.steer)
         send_control(commands, '', '')
 
