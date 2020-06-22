@@ -7,9 +7,9 @@ import eventlet
 import eventlet.wsgi
 import time
 from flask import Flask
-from supporting_functions import update_rover
+from supporting_functions import *
 from birdEyeView import perspectiveTransform
-from GenerateTerrain import navigableTerrain
+#from GenerateTerrain import navigableTerrain
 
 
 sio = socketio.Server()
@@ -79,11 +79,12 @@ def telemetry(sid, data):
         # Initialize / update Rover with current telemetry
         Rover, image = update_rover(Rover, data)
         Rover = perspectiveTransform(Rover)
-       
 
+        # Create output images to send to server
+        out_image_string1, out_image_string2 = create_output_images(Rover)
 
         commands = (Rover.throttle, Rover.brake, Rover.steer)
-        send_control(commands, '', '')
+        send_control(commands, '', out_image_string2)
 
 
 def send_control(commands, image_string1, image_string2):

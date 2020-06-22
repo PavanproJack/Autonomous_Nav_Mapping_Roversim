@@ -59,7 +59,7 @@ def update_rover(Rover, data):
       'samples collected:', Rover.samples_collected)'''
 
     print('speed =', Rover.vel, 'position =', Rover.pos, 'throttle =',
-          Rover.throttle, 'steer_angle =', Rover.steer)
+          Rover.throttle, 'steer_angle =', Rover.steer, 'yaw_angle = ', Rover.yaw)
     time.sleep(0.5)
     # Get the current image from the center camera of the rover
     imgString = data["image"]
@@ -73,7 +73,7 @@ def update_rover(Rover, data):
 # Define a function to create display output given worldmap results
 def create_output_images(Rover):
     # Create a scaled map for plotting and clean up obs/nav pixels a bit
-    if np.max(Rover.worldmap[:, :, 2]) > 0:
+    '''if np.max(Rover.worldmap[:, :, 2]) > 0:
         nav_pix = Rover.worldmap[:, :, 2] > 0
         navigable = Rover.worldmap[:, :, 2] * (255 / np.mean(Rover.worldmap[nav_pix, 2]))
     else:
@@ -94,12 +94,6 @@ def create_output_images(Rover):
 
     map_add = cv2.addWeighted(plotmap, 1, Rover.ground_truth, 0.5, 0)
 
-    '''try:
-            map_add = cv2.addWeighted(plotmap, 1, Rover.ground_truth, 0.5, 0)
-      except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print (message)'''
 
     # Check whether any rock detections are present in worldmap
     rock_world_pos = Rover.worldmap[:, :, 1].nonzero()
@@ -158,8 +152,9 @@ def create_output_images(Rover):
     pil_img = Image.fromarray(map_add.astype(np.uint8))
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
-    encoded_string1 = base64.b64encode(buff.getvalue()).decode("utf-8")
+    encoded_string1 = base64.b64encode(buff.getvalue()).decode("utf-8")'''
 
+    encoded_string1 = ''
     pil_img = Image.fromarray(Rover.vision_image.astype(np.uint8))
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
