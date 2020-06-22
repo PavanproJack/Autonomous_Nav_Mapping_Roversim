@@ -5,7 +5,6 @@ from io import BytesIO, StringIO
 import base64
 import time
 
-
 # Define a function to convert telemetry strings to float independent of decimal convention
 def convert_to_float(string_to_convert):
     if ',' in string_to_convert:
@@ -13,7 +12,6 @@ def convert_to_float(string_to_convert):
     else:
         float_value = np.float(string_to_convert)
     return float_value
-
 
 def update_rover(Rover, data):
     # Initialize start time and sample positions
@@ -68,7 +66,7 @@ def update_rover(Rover, data):
 
     # Return updated Rover and separate image for optional saving
     return Rover, image
-
+    
 
 # Define a function to create display output given worldmap results
 def create_output_images(Rover):

@@ -63,7 +63,12 @@ def perspectiveTransform(Rover):
     #Calculate the mean of all the directions to generate a 
     # promising navigable direction.
     Rover.nav_angles = polarData[1]
+
     Rover.nav_dists = polarData[0]
 
+    Rover.steer = np.mean(polarData[1])
+
+
+    
 
     return Rover
