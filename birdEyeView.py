@@ -6,6 +6,20 @@ dst_size = 5
 
 rgb_thresh = (160, 160, 160)
 
+
+def rockThreshold(img, rock_thresh = (100, 100, 50)):
+    color_select = np.zeros_like(img[:,:,0])
+    # Require that each pixel be above all three threshold values in RGB
+    # above_thresh will now contain a boolean array with "True"
+    # where threshold was met
+    above_thresh = (img[:,:,0] > rock_thresh[0]) \
+                & (img[:,:,1] > rock_thresh[1]) \
+                & (img[:,:,2] < rock_thresh[2])
+    # Index the array of zeros with the boolean array and set to 1
+    color_select[above_thresh] = 1
+    # Return the binary image
+    return color_select
+
 def roverView(image):
     ypos, xpos = image.nonzero()
     x_pixel = xpos - image.shape[1]/2
@@ -17,7 +31,6 @@ def cvtPolar(rx, ry):
     angle = np.arctan2(ry, rx) 
     # Calculate every non-zero pixel's distance and direction(angle) 
     # from the rover's center and return it.
-
     return distance, angle 
 
 
@@ -49,13 +62,18 @@ def perspectiveTransform(Rover):
     # Index the array of zeros with the boolean array and set to 1
     nav_terrain_img[above_thresh] = 1
 
-
     # Now insert nav_terrain_img into blue channel and non_nav_terrain_img into red channel
     Rover.vision_image[:,:,2] = nav_terrain_img * 255  
 
     non_nav_terrain_img = np.absolute(np.float32(nav_terrain_img) - 1) * maskedImage
     Rover.vision_image[:,:,0] = non_nav_terrain_img * 255  
+    
+    #Identify Rock Pixels
+    rock_thr_image = rockThreshold(warpedImage)
+    Rover.vision_image[:,:,1] = rock_thr_image * 255
 
+    #Rover centric pixels of Rock Samples
+    rock_rover_x, rock_rover_y = roverView(rock_thr_image)
 
     #Rover centric pixels of navigable terrain
     rover_x, rover_y = roverView(nav_terrain_img) 
@@ -65,10 +83,5 @@ def perspectiveTransform(Rover):
     Rover.nav_angles = polarData[1]
 
     Rover.nav_dists = polarData[0]
-
-    Rover.steer = np.mean(polarData[1])
-
-
-    
 
     return Rover

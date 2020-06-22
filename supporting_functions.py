@@ -56,8 +56,8 @@ def update_rover(Rover, data):
       'total time:', Rover.total_time, 'samples remaining:', data["sample_count"], 
       'samples collected:', Rover.samples_collected)'''
 
-    print('speed =', Rover.vel, 'position =', Rover.pos, 'throttle =',
-          Rover.throttle, 'steer_angle =', Rover.steer, 'yaw_angle = ', Rover.yaw)
+    '''print('speed =', Rover.vel, 'position =', Rover.pos, 'throttle =',
+          Rover.throttle, 'steer_angle =', Rover.steer, 'yaw_angle = ', Rover.yaw)'''
     time.sleep(0.5)
     # Get the current image from the center camera of the rover
     imgString = data["image"]
@@ -66,7 +66,7 @@ def update_rover(Rover, data):
 
     # Return updated Rover and separate image for optional saving
     return Rover, image
-    
+
 
 # Define a function to create display output given worldmap results
 def create_output_images(Rover):
