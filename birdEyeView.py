@@ -1,11 +1,14 @@
 import numpy as np
 import cv2
+import matplotlib.image as mpimage
 
 bottom_offset = 6
 dst_size = 5
 
-rgb_thresh = (160, 160, 160)
+worldMapPath = './calibration_images/map_bw.png'
+mapImage = mpimage.imread(worldMapPath)
 
+rgb_thresh = (160, 160, 160)
 
 def rockThreshold(img, rock_thresh = (100, 100, 50)):
     color_select = np.zeros_like(img[:,:,0])
@@ -31,7 +34,29 @@ def cvtPolar(rx, ry):
     angle = np.arctan2(ry, rx) 
     # Calculate every non-zero pixel's distance and direction(angle) 
     # from the rover's center and return it.
-    return distance, angle 
+    return distance, angle
+
+
+def transformRotation(yawAngle, nZeroPixels):
+    yawRadians = np.radians(yawAngle)
+    x_rot = nZeroPixels[0] * np.cos(yawRadians) - nZeroPixels[1] * np.sin(yawRadians)
+    y_rot = nZeroPixels[0] * np.sin(yawRadians) + nZeroPixels[1] * np.cos(yawRadians)
+    return x_rot, y_rot
+
+def transformTranslation(x_rot, y_rot, scale, x_pos, y_pos):
+    x_trans = x_pos + x_rot/scale
+    y_trans = y_pos + y_rot/scale
+    return x_trans, y_trans 
+
+def transformWorld(nZeroPixels, scale, xpos, ypos, yawAngle, world_size):
+    
+    xRot, yRot = transformRotation(yawAngle, nZeroPixels)
+    xTrans, yTrans = transformTranslation(xRot, yRot, scale, xpos, ypos)
+    
+    x_world = np.clip(np.int_(xTrans), 0, world_size - 1)
+    y_world = np.clip(np.int_(yTrans), 0, world_size - 1)
+    
+    return x_world, y_world
 
 
 def perspectiveTransform(Rover):
@@ -75,6 +100,9 @@ def perspectiveTransform(Rover):
     #Rover centric pixels of Rock Samples
     rock_rover_x, rock_rover_y = roverView(rock_thr_image)
 
+    #Rover centric pixels of non-navigable terrain (obstacles)
+    rover_x_obs, rover_y_obs = roverView(non_nav_terrain_img)
+
     #Rover centric pixels of navigable terrain
     rover_x, rover_y = roverView(nav_terrain_img) 
     polarData = cvtPolar(rover_x, rover_y)
@@ -83,5 +111,34 @@ def perspectiveTransform(Rover):
     Rover.nav_angles = polarData[1]
 
     Rover.nav_dists = polarData[0]
+
+    #Creating World Map View here...
+    Rover.worldmap[:, :, 1] = mapImage * 255
+
+    #Rover's pose w.r.t world map is given by Rover.pos and Rover.yaw measures.
+    world_rover_pos_x = int(Rover.pos[0])
+    world_rover_pos_y = int(Rover.pos[1])
+    world_rover_o = Rover.yaw
+
+    Rover.worldmap[world_rover_pos_x, world_rover_pos_y, :] =  255
+    print(Rover.pos)
+    
+    world_size = np.shape(Rover.worldmap)[0]
+
+    #World centric pixels of navigable terrain
+    world_x, world_y = transformWorld((rover_x, rover_y), Rover.scale, world_rover_pos_x, world_rover_pos_y, world_rover_o, world_size)
+    #Rover.worldmap[world_y, world_x, 2] += 10
+
+    # World Centric pixels of Obstacles
+    world_x_obs, world_y_obs = transformWorld((rover_x_obs, rover_y_obs), Rover.scale, world_rover_pos_x, world_rover_pos_y, world_rover_o, world_size)
+    #Rover.worldmap[world_y_obs, world_x_obs, 0] += 10
+
+
+
+
+
+
+
+
 
     return Rover

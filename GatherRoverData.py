@@ -79,14 +79,14 @@ def telemetry(sid, data):
         # Initialize / update Rover with current telemetry
         Rover, image = update_rover(Rover, data)
         Rover = perspectiveTransform(Rover)
-        Rover = identifySamples(Rover)
+        #Rover = identifySamples(Rover)
 
         # Create output images to send to server
         out_image_string1, out_image_string2 = create_output_images(Rover)
 
         commands = (Rover.throttle, Rover.brake, Rover.steer)
-        send_control(commands, '', out_image_string2)
-        print(Rover.send_pickup)
+        send_control(commands, out_image_string1, out_image_string2)
+        #print(Rover.send_pickup)
 
 
 def send_control(commands, image_string1, image_string2):

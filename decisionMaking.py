@@ -10,5 +10,7 @@ def identifySamples(Rover):
         Rover.brake = Rover.brake_set
         if Rover.vel == 0 and not Rover.picking_up:
             Rover.send_pickup = True
+    else:
+        Rover.send_pickup = False
 
     return Rover

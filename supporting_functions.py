@@ -68,10 +68,28 @@ def update_rover(Rover, data):
     return Rover, image
 
 
-# Define a function to create display output given worldmap results
+
 def create_output_images(Rover):
+
+    pil_img = Image.fromarray(Rover.worldmap.astype(np.uint8))
+    buff = BytesIO()
+    pil_img.save(buff, format="JPEG")
+    encoded_string1 = base64.b64encode(buff.getvalue()).decode("utf-8")
+
+    #encoded_string1 = ''
+    
+    pil_img = Image.fromarray(Rover.vision_image.astype(np.uint8))
+    buff = BytesIO()
+    pil_img.save(buff, format="JPEG")
+    encoded_string2 = base64.b64encode(buff.getvalue()).decode("utf-8")
+
+    return encoded_string1, encoded_string2
+
+
+# Define a function to create display output given worldmap results
+'''def create_output_images(Rover):
     # Create a scaled map for plotting and clean up obs/nav pixels a bit
-    '''if np.max(Rover.worldmap[:, :, 2]) > 0:
+    if np.max(Rover.worldmap[:, :, 2]) > 0:
         nav_pix = Rover.worldmap[:, :, 2] > 0
         navigable = Rover.worldmap[:, :, 2] * (255 / np.mean(Rover.worldmap[nav_pix, 2]))
     else:
@@ -150,12 +168,12 @@ def create_output_images(Rover):
     pil_img = Image.fromarray(map_add.astype(np.uint8))
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
-    encoded_string1 = base64.b64encode(buff.getvalue()).decode("utf-8")'''
+    encoded_string1 = base64.b64encode(buff.getvalue()).decode("utf-8")
 
-    encoded_string1 = ''
+    
     pil_img = Image.fromarray(Rover.vision_image.astype(np.uint8))
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
     encoded_string2 = base64.b64encode(buff.getvalue()).decode("utf-8")
 
-    return encoded_string1, encoded_string2
+    return encoded_string1, encoded_string2'''
